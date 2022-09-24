@@ -36,8 +36,11 @@ fn bird_controller(keyinput: Res<Input<KeyCode>>, mut query: Query<&mut Transfor
         transform.rotation = Quat::from_rotation_z(-0.4);
 
         if keyinput.pressed(KeyCode::Space) {
+            // println!("{}", transform.rotation.z);
+            // if transform.rotation.z > 0.0 {
             transform.rotation = Quat::from_rotation_z(0.4);
             transform.translation.y += 15.0;
+            // }
         }
     }
 }
