@@ -6,6 +6,9 @@ use crate::physics::{AffectedByGravity, Velocity};
 #[derive(Component)]
 struct CanFly;
 
+#[derive(Component)]
+pub struct Bird;
+
 pub struct BirdPlugin;
 
 impl Plugin for BirdPlugin {
@@ -31,7 +34,8 @@ fn spawn_bird(mut commands: Commands, asset_server: Res<AssetServer>, windows: R
             ..default()
         })
         .insert(CanFly)
-        .insert(Velocity(0.0))
+        .insert(Bird)
+        .insert(Velocity(Vec2::new(0.0, 0.0)))
         .insert(AffectedByGravity);
 }
 
@@ -42,7 +46,7 @@ fn bird_controller(
     for (mut transform, mut velocity) in query.iter_mut() {
         if key_input.just_pressed(KeyCode::Space) {
             transform.rotation = Quat::from_rotation_z(0.4);
-            velocity.0 = 180.0;
+            velocity.0.y = 180.0;
         }
 
         if key_input.just_released(KeyCode::Space) {
