@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::{gamedata::GameData, gamestate::GameState};
+
 #[derive(Component)]
 pub struct AffectedByGravity;
 
@@ -32,17 +34,38 @@ fn velocity_vertical_system(
     }
 }
 
-fn velocity_horizontal_system(time: Res<Time>, mut query: Query<&mut Transform, With<AutoMoving>>) {
-    for mut transform in query.iter_mut() {
-        transform.translation.x -= 100.0 * time.delta_seconds();
+fn velocity_horizontal_system(
+    time: Res<Time>,
+    game_data: Res<GameData>,
+    mut query: Query<&mut Transform, With<AutoMoving>>,
+) {
+    if let GameState::Playing = game_data.game_state {
+        for mut transform in query.iter_mut() {
+            transform.translation.x -= 100.0 * time.delta_seconds();
+        }
     }
 }
 
 fn gravity_system(
     time: Res<Time>,
+    game_data: Res<GameData>,
     mut query: Query<(&Velocity, &mut Transform), With<AffectedByGravity>>,
 ) {
-    for (velocity, mut transform) in query.iter_mut() {
-        transform.translation.y += velocity.0.y * time.delta_seconds();
+    match game_data.game_state {
+        GameState::Menu => {
+            for (velocity, transform) in query.iter_mut() {
+                increment_gravity(transform, velocity, &time);
+            }
+        }
+        GameState::Playing => {
+            for (velocity, transform) in query.iter_mut() {
+                increment_gravity(transform, velocity, &time);
+            }
+        }
+        GameState::Dead => {}
     }
+}
+
+fn increment_gravity(mut transform: Mut<Transform>, velocity: &Velocity, time: &Time) {
+    transform.translation.y += velocity.0.y * time.delta_seconds();
 }
